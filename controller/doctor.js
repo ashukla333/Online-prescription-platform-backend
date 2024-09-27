@@ -88,14 +88,23 @@ export const getAllDoctorsById = async (req, res) => {
     const getDrList = await getAllDoctorsList(id);
     if (getDrList) {
       // let profilePictureLink = `${req.protocol}://${req.get('host')}/${getDrList.profilePicture}`;
-      const profilePictureLink = `${req.protocol}://${req.get('host')}/uploads/${path.basename(getDrList.profilePicture)}`;
-      
+      const profilePictureLink = `${req.protocol}://${req.get(
+        "host"
+      )}/uploads/${path.basename(getDrList.profilePicture)}`;
+
       console.log({ profilePictureLink });
       return res.status(200).json({
         status: true,
         statusCode: 200,
         message: "Doctor fetch succesfully!",
-        data: getDrList,
+        data: {
+          _id: getDrList._id,
+          name: getDrList.name,
+          email: getDrList.email,
+          phoneNumber: getDrList.phoneNumber,
+          profilePicture: profilePictureLink,
+          createdAt: getDrList.createdAt,
+        },
       });
     }
     return res.status(400).json({

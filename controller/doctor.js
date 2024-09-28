@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import { getAllDoctorsList, getDoctor } from "../service/doctor-service.js";
 import cloudinary from "cloudinary";
 import path from "path";
+import streamifier from 'streamifier';
 
 cloudinary.v2.config({
   cloud_name: "dhdkujtqq",
@@ -11,40 +12,63 @@ cloudinary.v2.config({
 });
 
 export const addDoctor = async (req, res) => {
-  try {
-    const { name, email, phoneNumber, yearOfExp, specialty } =
-      req.body;
+    try {
+      const { name, email, phoneNumber, yearOfExp, specialty } = req.body;
 
-    //   console.log(req.body)
-      console.log({aman:req})
-    const checkEmailAndPhoneNumber = await getDoctor(email, phoneNumber);
-    if (!checkEmailAndPhoneNumber) {
-      const result = await cloudinary.uploader.upload(req.file.path);
-      let createObject = {
-        name: name,
-        profilePicture: result && result.secure_url ? result.secure_url : "",
-        email: email,
-        phoneNumber: phoneNumber,
-        yearOfExp: yearOfExp,
-        specialty: specialty,
-      };
-      await doctor.create(createObject);
+      const checkEmailAndPhoneNumber = await getDoctor(email, phoneNumber);
+      if (checkEmailAndPhoneNumber) {
+        return res.status(409).json({
+          status: false,
+          statusCode: 409,
+          message: checkEmailAndPhoneNumber?.message,
+        });
+      }
+      console.log(req.file)
+      // Direct upload to Cloudinary using buffer (stream)
+      let profilePicture = '';
+      if (req.file) {
+        // Create a promise to upload the image to Cloudinary
+        const uploadStream = cloudinary.uploader.upload_stream(
+          { resource_type: 'auto' }, // Automatically detect resource type (e.g., image, video)
+          (error, result) => {
+            if (error) {
+              console.error('Cloudinary upload error:', error);
+              throw new Error('Cloudinary upload failed');
+            }
+            console.log({result})
+            // The result contains the secure_url after the image is uploaded
+            profilePicture = result.secure_url;
+            console.log({profilePicture})
+          }
+        );
+  
+        // Convert the buffer to a stream and pipe it to Cloudinary
+        streamifier.createReadStream(req.file.buffer).pipe(uploadStream);
+      }
+      console.log("fi______rst")
+
+      const newDoctor = {
+        name,
+        email,
+        phoneNumber,
+        yearOfExp,
+        specialty,
+        profilePicture,
+      }
+  console.log(newDoctor)
+  return
+      await doctor.create(newDoctor);
+  
       return res.status(200).json({
         status: true,
-        statusCode: 200,
-        message: "Doctor is Created succesfully!",
+        message: "Doctor created successfully!",
+        data: newDoctor,
       });
-    }
-    return res.status(409).json({
-      status: false,
-      statusCode: 409,
-      message: checkEmailAndPhoneNumber?.message,
-    });
-  } catch (error) {
-    console.log(error);
-    return error;
-  }
-};
+  
+    } catch (error) {
+      console.log(error)
+    }
+  };
 
 export const loginDoctor = async (req, res) => {
   try {

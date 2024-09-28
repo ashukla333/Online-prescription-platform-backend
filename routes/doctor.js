@@ -3,8 +3,8 @@ import { addDoctor, getAllDoctors, getAllDoctorsById, loginDoctor } from '../con
 // import { isAuthenticated } from '../middleware/auth.js';
 // const multer  = require('multer')
 import { upload } from '../helper/fileupload.js';
-// import {storage} from '../helper/fileupload.js'
-// import multer from 'multer';
+
+
 
 const router=express.Router()
 // const upload = multer({ storage });

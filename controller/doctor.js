@@ -14,16 +14,16 @@ const imagekit = new ImageKit({
 
 export const addDoctor = async (req, res) => {
   try {
-    const { name, profilePicture, email, phoneNumber, yearOfExp } = req.body;
+    const { name, profilePicture, email, phoneNumber, yearOfExp,specialty } = req.body;
     const { filename } = req.file;
     // console.log(req.file,req.file.originalname)
     let result=await  imagekit.upload({
         file: req.file.path, // The file buffer
         fileName: req.file.originalname, // The file name
     })
-    
-    console.log(result)
-    return
+
+    // console.log(result)
+    // return
     const checkEmailAndPhoneNumber = await getDoctor(email, phoneNumber);
     if (!checkEmailAndPhoneNumber) {
       let createObject = {
@@ -32,6 +32,7 @@ export const addDoctor = async (req, res) => {
         email: email,
         phoneNumber: phoneNumber,
         yearOfExp: yearOfExp,
+        specialty:specialty
       };
       await doctor.create(createObject);
       return res.status(200).json({
@@ -116,6 +117,7 @@ export const getAllDoctorsById = async (req, res) => {
           name: getDrList.name,
           email: getDrList.email,
           phoneNumber: getDrList.phoneNumber,
+          specialty:getDrList.specialty,
           profilePicture: profilePictureLink,
           createdAt: getDrList.createdAt,
         },

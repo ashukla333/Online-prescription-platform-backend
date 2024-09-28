@@ -5,8 +5,9 @@ const dbUser = new mongoose.Schema({
   name: { type: String },
   profilePicture: { type: String },
   email: { type: String},
+  specialty: { type: String},
   phoneNumber: { type: Number },
-  yearOfExp: { type: Number, select: false },  
+  yearOfExp: { type: Number },  
   createdAt: {
     type: Date,
     default: Date.now,

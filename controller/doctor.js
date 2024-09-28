@@ -59,6 +59,7 @@ export const addDoctor = async (req, res) => {
         email,
         phoneNumber,
         yearOfExp,
+        specialty,
         profilePicture, // If no picture uploaded, this will be an empty string
       };
   

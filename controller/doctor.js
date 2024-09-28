@@ -16,7 +16,7 @@ export const addDoctor = async (req, res) => {
       req.body;
 
     //   console.log(req.body)
-      console.log(req)
+      console.log({aman:req})
     const checkEmailAndPhoneNumber = await getDoctor(email, phoneNumber);
     if (!checkEmailAndPhoneNumber) {
       const result = await cloudinary.uploader.upload(req.file.path);

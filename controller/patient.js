@@ -16,6 +16,7 @@ export const addPatient = async (req, res) => {
       const {
         name,
         email,
+        age,
         phoneNumber,
         yearOfExp,
         historyOfIllness,
@@ -67,6 +68,7 @@ export const addPatient = async (req, res) => {
         email: email,
         phoneNumber: phoneNumber,
         yearOfExp: yearOfExp,
+        age:age,
         historyOfIllness: historyOfIllness,
         historyOfSurgery: historyOfSurgery,
       };
@@ -145,6 +147,7 @@ export const getPatientById = async (req, res) => {
         data: {
           _id: getPatientList._id,
           name: getPatientList.name,
+          age:getPatientList.age,
           email: getPatientList.email,
           phoneNumber: getPatientList.phoneNumber,
           profilePicture: profilePictureLink,

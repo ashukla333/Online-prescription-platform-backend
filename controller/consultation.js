@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 import { culsultant } from "../models/consultation.js";
 import { patient } from "../models/patient.js";
-import {ObjectId} from "mongodb";
+import { ObjectId } from "mongodb";
 
 export const addConsultation = async (req, res) => {
   try {
@@ -57,7 +57,7 @@ export const getDrConsultation = async (req, res) => {
     const culsultantData = await culsultant.aggregate([
       {
         $match: {
-          doctorID:new ObjectId(id),
+          doctorID: new ObjectId(id),
         },
       },
       {
@@ -89,6 +89,45 @@ export const getDrConsultation = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
+    return error;
+  }
+};
+
+export const addPriscription = async (req, res) => {
+  try {
+    const { doctorID, patientID, medicine,culsultantId, careToBeTaken } = req.body;
+    const myData = await culsultant.findOne({
+      doctorID: doctorID,
+      patientID: patientID,
+      _id:culsultantId
+    });
+    if (!myData) {
+      return res.status(400).json({
+        status: false,
+        statusCode: 400,
+        message: "not found culsultant",
+      });
+    }
+
+    await culsultant.updateOne(
+      {
+        doctorID: doctorID,
+        patientID: patientID,
+        _id:culsultantId
+      },
+      {
+        $set: {
+          medicine: medicine,
+          careToBeTaken: careToBeTaken,
+        },
+      }
+    );
+    return res.status(200).json({
+      status: true,
+      statusCode: 200,
+      message: " Priscription submitted  sucessfully!",
+    });
+  } catch (error) {
     return error;
   }
 };

@@ -8,6 +8,8 @@ const dbUser = new mongoose.Schema({
   others: { type: String },
   patientID: { type: Schema.Types.ObjectId },
   doctorID: { type: Schema.Types.ObjectId },
+  careToBeTaken: { type: String },
+  medicine: { type: String },
   createdAt: {
     type: Date,
     default: Date.now,

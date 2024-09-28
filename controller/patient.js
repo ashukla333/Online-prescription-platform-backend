@@ -12,22 +12,58 @@ cloudinary.v2.config({
 });
 
 export const addPatient = async (req, res) => {
-  try {
-    const {
-      name,
-      email,
-      phoneNumber,
-      yearOfExp,
-      historyOfIllness,
-      historyOfSurgery,
-    } = req.body;
-    // const { filename } = req.file;
-    const checkEmailAndPhoneNumber = await getPatient(email, phoneNumber);
-    if (!checkEmailAndPhoneNumber) {
-      const result = await cloudinary.uploader.upload(req.file.path);
+    try {
+      const {
+        name,
+        email,
+        phoneNumber,
+        yearOfExp,
+        historyOfIllness,
+        historyOfSurgery,
+      } = req.body;
+      // const { filename } = req.file;
+      const checkEmailAndPhoneNumber = await getPatient(email, phoneNumber);
+      if (checkEmailAndPhoneNumber) {
+        return res.status(409).json({
+          status: false,
+          statusCode: 409,
+          message: checkEmailAndPhoneNumber?.message,
+        });
+      }
+  
+      let profilePicture = '';
+  
+     
+      console.log("Checking if file exists...");
+      if (req.file) {
+        console.log("File found:", req.file);
+  
+        try {
+          const result = await cloudinary.uploader.upload(
+            `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`, 
+            { resource_type: 'auto', public_id: `doctor_${name}` } 
+          );
+  
+          // Log the result of the Cloudinary upload
+          console.log("Cloudinary upload result:", result);
+  
+        
+          profilePicture = result.secure_url;
+          console.log('Download URL:', profilePicture);
+        } catch (uploadError) {
+          console.error('Upload failed:', uploadError);
+          return res.status(500).json({
+            status: false,
+            message: 'File upload failed.',
+          });
+        }
+  
+      } else {
+        console.log("No file uploaded.");
+      }
       let createObject = {
         name: name,
-        profilePicture: result && result.secure_url ? result.secure_url : "",
+        profilePicture: profilePicture,
         email: email,
         phoneNumber: phoneNumber,
         yearOfExp: yearOfExp,
@@ -37,20 +73,14 @@ export const addPatient = async (req, res) => {
       await patient.create(createObject);
       return res.status(200).json({
         status: true,
-        statusCode: 200,
         message: "patient is Created succesfully!",
+        data: createObject,
       });
+    } catch (error) {
+      console.log(error);
+      return error;
     }
-    return res.status(409).json({
-      status: false,
-      statusCode: 409,
-      message: checkEmailAndPhoneNumber?.message,
-    });
-  } catch (error) {
-    console.log(error);
-    return error;
-  }
-};
+  };
 
 export const loginPatient = async (req, res) => {
   try {

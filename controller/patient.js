@@ -1,17 +1,20 @@
 import { patient } from "../models/patient.js";
 import bcrypt from "bcrypt";
-// const path = require('path');
-// const fs = require('fs');
-import fs from "fs";
 import path from "path";
+import cloudinary from "cloudinary";
 import { getPatient } from "../service/patient-service.js";
 import { getAllpatientsList } from "../service/patient-service.js";
+
+cloudinary.v2.config({
+  cloud_name: "dhdkujtqq",
+  api_key: "881717377834428",
+  api_secret: "-1TebCjBkITPj9AWLEs7EwcDg_U",
+});
 
 export const addPatient = async (req, res) => {
   try {
     const {
       name,
-      profilePicture,
       email,
       phoneNumber,
       yearOfExp,
@@ -21,9 +24,10 @@ export const addPatient = async (req, res) => {
     // const { filename } = req.file;
     const checkEmailAndPhoneNumber = await getPatient(email, phoneNumber);
     if (!checkEmailAndPhoneNumber) {
+      const result = await cloudinary.uploader.upload(req.file.path);
       let createObject = {
         name: name,
-        profilePicture: profilePicture,
+        profilePicture: result && result.secure_url ? result.secure_url : "",
         email: email,
         phoneNumber: phoneNumber,
         yearOfExp: yearOfExp,
@@ -114,8 +118,8 @@ export const getPatientById = async (req, res) => {
           email: getPatientList.email,
           phoneNumber: getPatientList.phoneNumber,
           profilePicture: profilePictureLink,
-          historyOfSurgery:getPatientList.historyOfSurgery,
-          historyOfIllness:getPatientList.historyOfIllness,
+          historyOfSurgery: getPatientList.historyOfSurgery,
+          historyOfIllness: getPatientList.historyOfIllness,
           createdAt: getPatientList.createdAt,
         },
       });

@@ -1,38 +1,30 @@
 import { doctor } from "../models/doctor.js";
 import bcrypt from "bcrypt";
 import { getAllDoctorsList, getDoctor } from "../service/doctor-service.js";
-// const path = require('path');
-// const fs = require('fs');
-import fs from "fs";
+import cloudinary from "cloudinary";
 import path from "path";
-import ImageKit from "imagekit";
-const imagekit = new ImageKit({
-    publicKey: 'public_XF6RAjjNoqiV5Pa8n0U4jT1sw1E=',
-    privateKey: "private_/V9K1KM1YfBZzUbKYt2MVoDh1Yg=",
-    urlEndpoint: "https://ik.imagekit.io/9dxlvqfhi",
+
+cloudinary.v2.config({
+  cloud_name: "dhdkujtqq",
+  api_key: "881717377834428",
+  api_secret: "-1TebCjBkITPj9AWLEs7EwcDg_U",
 });
 
 export const addDoctor = async (req, res) => {
   try {
-    const { name, profilePicture, email, phoneNumber, yearOfExp,specialty } = req.body;
-    const { filename } = req.file;
-    // console.log(req.file,req.file.originalname)
-    let result=await  imagekit.upload({
-        file: req.file.path, // The file buffer
-        fileName: req.file.originalname, // The file name
-    })
+    const { name, email, phoneNumber, yearOfExp, specialty } =
+      req.body;
 
-    // console.log(result)
-    // return
     const checkEmailAndPhoneNumber = await getDoctor(email, phoneNumber);
     if (!checkEmailAndPhoneNumber) {
+      const result = await cloudinary.uploader.upload(req.file.path);
       let createObject = {
         name: name,
-        profilePicture: filename,
+        profilePicture: result && result.secure_url ? result.secure_url : "",
         email: email,
         phoneNumber: phoneNumber,
         yearOfExp: yearOfExp,
-        specialty:specialty
+        specialty: specialty,
       };
       await doctor.create(createObject);
       return res.status(200).json({
@@ -117,7 +109,7 @@ export const getAllDoctorsById = async (req, res) => {
           name: getDrList.name,
           email: getDrList.email,
           phoneNumber: getDrList.phoneNumber,
-          specialty:getDrList.specialty,
+          specialty: getDrList.specialty,
           profilePicture: profilePictureLink,
           createdAt: getDrList.createdAt,
         },

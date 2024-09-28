@@ -18,6 +18,7 @@ app.use(
 );
 app.use(cookieParser());
 app.use(express.json());
+app.use('/uploads', express.static('uploads'));
 app.use("/v1", IndexRouter);
 
 app.get("/", (req, res) => {
@@ -27,3 +28,4 @@ app.get("/", (req, res) => {
     console.log(error);
   }
 });
+

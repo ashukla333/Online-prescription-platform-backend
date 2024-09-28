@@ -21,21 +21,31 @@
 
 
 
-
 import multer from 'multer';
 import path from 'path';
+import { fileURLToPath } from 'url';
+
+// Create __dirname equivalent in ES modules
+const _filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(_filename);
+
+// Create the uploads directory if it doesn't exist
+import fs from 'fs';
+
+const uploadsDir = path.join(__dirname, '../uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
 
 // Set up multer storage
-export const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    // Ensure uploads folder exists and use an absolute path
-    cb(null, path.join(__dirname, '../uploads')); // Change this line
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-  }
+export const upload = multer({
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, uploadsDir);
+    },
+    filename: (req, file, cb) => {
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+      cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+    },
+  }),
 });
-
-export const upload = multer({ storage });
-  

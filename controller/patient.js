@@ -1,43 +1,40 @@
-import { doctor } from "../models/doctor.js";
+import { patient } from "../models/patient.js";
 import bcrypt from "bcrypt";
-import { getAllDoctorsList, getDoctor } from "../service/doctor-service.js";
 // const path = require('path');
 // const fs = require('fs');
 import fs from "fs";
 import path from "path";
-import ImageKit from "imagekit";
-const imagekit = new ImageKit({
-    publicKey: 'public_XF6RAjjNoqiV5Pa8n0U4jT1sw1E=',
-    privateKey: "private_/V9K1KM1YfBZzUbKYt2MVoDh1Yg=",
-    urlEndpoint: "https://ik.imagekit.io/9dxlvqfhi",
-});
+import { getPatient } from "../service/patient-service.js";
+import { getAllpatientsList } from "../service/patient-service.js";
 
-export const addDoctor = async (req, res) => {
+export const addPatient = async (req, res) => {
   try {
-    const { name, profilePicture, email, phoneNumber, yearOfExp } = req.body;
-    const { filename } = req.file;
-    // console.log(req.file,req.file.originalname)
-    let result=await  imagekit.upload({
-        file: req.file.path, // The file buffer
-        fileName: req.file.originalname, // The file name
-    })
-    
-    console.log(result)
-    return
-    const checkEmailAndPhoneNumber = await getDoctor(email, phoneNumber);
+    const {
+      name,
+      profilePicture,
+      email,
+      phoneNumber,
+      yearOfExp,
+      historyOfIllness,
+      historyOfSurgery,
+    } = req.body;
+    // const { filename } = req.file;
+    const checkEmailAndPhoneNumber = await getPatient(email, phoneNumber);
     if (!checkEmailAndPhoneNumber) {
       let createObject = {
         name: name,
-        profilePicture: filename,
+        profilePicture: profilePicture,
         email: email,
         phoneNumber: phoneNumber,
         yearOfExp: yearOfExp,
+        historyOfIllness: historyOfIllness,
+        historyOfSurgery: historyOfSurgery,
       };
-      await doctor.create(createObject);
+      await patient.create(createObject);
       return res.status(200).json({
         status: true,
         statusCode: 200,
-        message: "Doctor is Created succesfully!",
+        message: "patient is Created succesfully!",
       });
     }
     return res.status(409).json({
@@ -51,10 +48,10 @@ export const addDoctor = async (req, res) => {
   }
 };
 
-export const loginDoctor = async (req, res) => {
+export const loginPatient = async (req, res) => {
   try {
     const { email, phoneNumber } = req.body;
-    const checkEmailAndPhoneNumber = await getDoctor(email, phoneNumber);
+    const checkEmailAndPhoneNumber = await getPatient(email, phoneNumber);
     if (!checkEmailAndPhoneNumber) {
       return res.status(400).json({
         status: false,
@@ -74,15 +71,15 @@ export const loginDoctor = async (req, res) => {
   }
 };
 
-export const getAllDoctors = async (req, res) => {
+export const getAllPatient = async (req, res) => {
   try {
-    const getDrList = await getAllDoctorsList();
-    if (getDrList && getDrList.length > 0) {
+    const getPatientList = await getAllpatientsList();
+    if (getPatientList && getPatientList.length > 0) {
       return res.status(200).json({
         status: true,
         statusCode: 200,
-        message: "Doctor fetch succesfully!",
-        data: getDrList,
+        message: "Patient fetch succesfully!",
+        data: getPatientList,
       });
     }
     return res.status(400).json({
@@ -96,28 +93,30 @@ export const getAllDoctors = async (req, res) => {
   }
 };
 
-export const getAllDoctorsById = async (req, res) => {
+export const getPatientById = async (req, res) => {
   try {
     const { id } = req.params;
-    const getDrList = await getAllDoctorsList(id);
-    if (getDrList) {
-      // let profilePictureLink = `${req.protocol}://${req.get('host')}/${getDrList.profilePicture}`;
+    const getPatientList = await getAllpatientsList(id);
+    if (getPatientList) {
+      // let profilePictureLink = `${req.protocol}://${req.get('host')}/${getPatientList.profilePicture}`;
       const profilePictureLink = `${req.protocol}://${req.get(
         "host"
-      )}/uploads/${path.basename(getDrList.profilePicture)}`;
+      )}/uploads/${path.basename(getPatientList.profilePicture)}`;
 
       console.log({ profilePictureLink });
       return res.status(200).json({
         status: true,
         statusCode: 200,
-        message: "Doctor fetch succesfully!",
+        message: "Patient fetch succesfully!",
         data: {
-          _id: getDrList._id,
-          name: getDrList.name,
-          email: getDrList.email,
-          phoneNumber: getDrList.phoneNumber,
+          _id: getPatientList._id,
+          name: getPatientList.name,
+          email: getPatientList.email,
+          phoneNumber: getPatientList.phoneNumber,
           profilePicture: profilePictureLink,
-          createdAt: getDrList.createdAt,
+          historyOfSurgery:getPatientList.historyOfSurgery,
+          historyOfIllness:getPatientList.historyOfIllness,
+          createdAt: getPatientList.createdAt,
         },
       });
     }

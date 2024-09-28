@@ -7,7 +7,6 @@ const dbUser = new mongoose.Schema({
   email: { type: String},
   phoneNumber: { type: Number },
   age: { type: Number },
-  yearOfExp: { type: Number, select: false }, 
   historyOfSurgery: { type: String },
   historyOfIllness: { type: String },
   createdAt: {
@@ -19,4 +18,4 @@ const dbUser = new mongoose.Schema({
 
 
 
-export const user = mongoose.model("patient", dbUser);
+export const patient = mongoose.model("patient", dbUser);
